@@ -16,28 +16,49 @@ public class Board {
         return rows;
     }
 
-    public void setRows(Integer rows) {
-        this.rows = rows;
-    }
-
     public Integer getColumns() {
         return columns;
     }
 
-    public void setColumns(Integer columns) {
-        this.columns = columns;
-    }
-
     public Piece piece(Integer rows, Integer columns){
+        if(!positionExists(rows, columns)){
+            throw new BoardException("Position is not on the board");
+        }
+
         return pieces[rows][columns];
     }
 
     public Piece piece(Position position){
+        if(!positionExists(position)){
+            throw new BoardException("Position is not on the board");
+        }
+
         return pieces[position.getRow()][position.getCollumn()];
     }
 
-    public void placePiece(Position position, Piece piece){
+    public void placePiece(Piece piece, Position position){
+        if(thereIsAPiece(position)){
+            throw new BoardException("There is already a piece in the position " + position);
+        }
+
         pieces[position.getRow()][position.getCollumn()] = piece;
         piece.position = position;
+    }
+
+    // Sobrecarga do positionExists
+    private Boolean positionExists(Integer row, Integer column){
+        return row >= 0 && row < rows && column >= 0 && column < columns;
+    }
+
+    public Boolean positionExists(Position position){
+        return positionExists(position.getRow(),position.getCollumn());
+    }
+
+    public Boolean thereIsAPiece(Position position){
+        if(!positionExists(position)){
+            throw new BoardException("Position is not on the board");
+        }
+
+        return piece(position) != null;
     }
 }
