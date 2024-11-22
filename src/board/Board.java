@@ -1,4 +1,4 @@
-package boardgame;
+package board;
 
 public class Board {
 
@@ -45,12 +45,29 @@ public class Board {
         piece.position = position;
     }
 
+    public Piece removePiece(Position position){
+        if(!positionExists(position)){
+            throw new BoardException("Position is not on the board");
+        }
+
+        if(piece(position) == null){
+            return null;
+        }
+
+        Piece piece = piece(position);
+        piece.position = null;
+        pieces[position.getRow()][position.getCollumn()] = null;
+        return piece;
+    }
+
     // Sobrecarga do positionExists
     private Boolean positionExists(Integer row, Integer column){
+
         return row >= 0 && row < rows && column >= 0 && column < columns;
     }
 
     public Boolean positionExists(Position position){
+
         return positionExists(position.getRow(),position.getCollumn());
     }
 
