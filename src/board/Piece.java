@@ -21,7 +21,7 @@ public abstract class Piece {
     // Hook Method, Concrete Method
     // Pertence a um padrão de projetos conhecido como "Template Method Pattern"
     public boolean possibleMove(Position position){
-        return possibleMoves()[position.getRow()][position.getCollumn()];
+        return possibleMoves()[position.getRow()][position.getColumn()];
     }
 
     public boolean isThereAnyPossibleMove(){
