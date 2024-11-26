@@ -8,11 +8,15 @@ import chess.pieces.Rook;
 public class ChessMatch {
 
     private Board board;
+    private Color currentPlayer;
+    private Integer turn;
 
     public ChessMatch() {
 
         // ChessMatch controla o tempo de vida do objeto board (Relação de Composição)
         this.board = new Board(8,8);
+        this.currentPlayer = Color.WHITE;
+        this.turn = 1;
         initialSetup();
     }
 
@@ -27,6 +31,14 @@ public class ChessMatch {
         return matrix;
     }
 
+    public Color getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public Integer getTurn() {
+        return turn;
+    }
+
     public ChessPiece performChessMove(ChessPosition sourcePosition, ChessPosition targetPosition){
         Position source = sourcePosition.toPosition();
         Position target = targetPosition.toPosition();
@@ -34,6 +46,7 @@ public class ChessMatch {
         validateSourcePosition(source);
         validateTargetPosition(source, target);
         ChessPiece capturedPiece = makeMove(source, target);
+        nextTurn();
 
         return capturedPiece;
     }
@@ -59,6 +72,10 @@ public class ChessMatch {
             throw new ChessException("There isn't a piece in the source position");
         }
 
+        if(currentPlayer != ((ChessPiece) board.piece(source)).getColor()){
+            throw new ChessException("The chosen piece is not yours");
+        }
+
         if(!board.piece(source).isThereAnyPossibleMove()){
             throw new ChessException("There isn't possible move for chosen piece");
         }
@@ -71,6 +88,11 @@ public class ChessMatch {
 
     private void placeNewPiece(ChessPiece piece, Character column, Integer row){
         board.placePiece(piece, new ChessPosition(column, row).toPosition());
+    }
+
+    private void nextTurn(){
+        turn++;
+        currentPlayer = (currentPlayer == Color.WHITE) ? Color.BLACK : Color.WHITE;
     }
 
     private void initialSetup(){
