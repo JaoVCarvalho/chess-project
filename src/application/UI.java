@@ -55,7 +55,7 @@ public class UI {
             System.out.print(8 - i + " ");
             // pieces[0].length (atributo) retorna o número de colunas da matriz
             for (int j = 0; j < pieces[0].length; j++){
-                printPiece(pieces[i][j]);
+                printPiece(pieces[i][j], false);
             }
             System.out.println();
         }
@@ -64,7 +64,27 @@ public class UI {
 
     }
 
-    private static void printPiece(ChessPiece piece){
+
+    public static void printBoard(ChessPiece[][] pieces, boolean[][] possibleMoves){
+        // pieces.length (atributo) retorna o número de linhas matriz
+        for (int i = 0; i < pieces.length; i++){
+            System.out.print(8 - i + " ");
+            // pieces[0].length (atributo) retorna o número de colunas da matriz
+            for (int j = 0; j < pieces[0].length; j++){
+                printPiece(pieces[i][j], possibleMoves[i][j]);
+            }
+            System.out.println();
+        }
+
+        System.out.println("  a b c d e f g h");
+
+    }
+
+    private static void printPiece(ChessPiece piece, boolean background){
+        if(background){
+            System.out.print(ANSI_CYAN_BACKGROUND);
+        }
+
         if (piece != null){
 
             if(piece.getColor() == Color.WHITE){
@@ -74,7 +94,7 @@ public class UI {
             }
 
         } else {
-            System.out.print("-");
+            System.out.print("-" + ANSI_RESET);
         }
         System.out.print(" ");
     }
