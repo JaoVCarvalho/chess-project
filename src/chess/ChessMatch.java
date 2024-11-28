@@ -142,8 +142,11 @@ public class ChessMatch {
 
     private ChessPiece makeMove(Position source, Position target){
 
+        ChessPiece sourcePiece = ((ChessPiece) board.removePiece(source));
         ChessPiece capturedPiece = ((ChessPiece) board.removePiece(target)); // Downcasting
-        board.placePiece(board.removePiece(source), target);
+        board.placePiece(sourcePiece, target);
+
+        sourcePiece.increaseMoveCount();
 
         if(capturedPiece != null){
             piecesOnTheBoard.remove(capturedPiece);
@@ -156,6 +159,8 @@ public class ChessMatch {
     private void undoMove(Position source, Position target, ChessPiece capturedPiece){
         ChessPiece piece = (ChessPiece) board.removePiece(target);
         board.placePiece(piece, source);
+
+        piece.decreaseMoveCount();
 
         if(capturedPiece != null){
             board.placePiece(capturedPiece, target);
