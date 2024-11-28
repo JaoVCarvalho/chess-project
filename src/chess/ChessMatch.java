@@ -15,6 +15,7 @@ public class ChessMatch {
     private Color currentPlayer;
     private Integer turn;
     private boolean check; // Por padrão, o Java já inicializa como false
+    private boolean checkMate;
 
     private List<ChessPiece> piecesOnTheBoard = new ArrayList<>();
     private List<ChessPiece> capturedPieces = new ArrayList<>();
@@ -51,10 +52,14 @@ public class ChessMatch {
         return check;
     }
 
+    public boolean isCheckMate() {
+        return checkMate;
+    }
+
     public ChessPiece performChessMove(ChessPosition sourcePosition, ChessPosition targetPosition){
         Position source = sourcePosition.toPosition();
         Position target = targetPosition.toPosition();
-        
+
         validateSourcePosition(source);
         validateTargetPosition(source, target);
         ChessPiece capturedPiece = makeMove(source, target);
@@ -66,10 +71,15 @@ public class ChessMatch {
 
         check = (testCheck(opponent(currentPlayer))) ? true : false;
 
-        nextTurn();
+        if(testCheckMate(opponent(currentPlayer))){
+            checkMate = true;
+        } else {
+            nextTurn();
+        }
 
         return capturedPiece;
     }
+
 
     private boolean testCheck(Color color){
         Position position = getKing(color).getChessPosition().toPosition();
@@ -84,6 +94,34 @@ public class ChessMatch {
         }
 
         return false;
+    }
+
+    private boolean testCheckMate(Color color){
+        if(!testCheck(color)){
+            return false;
+        }
+
+        List<ChessPiece> pieces = piecesOnTheBoard.stream().filter(x -> x.getColor() == color).collect(Collectors.toList());
+        for (ChessPiece piece : pieces){
+            boolean[][] matrix = piece.possibleMoves();
+
+            for (int i = 0; i < matrix.length; i++){
+                for (int j = 0; j < matrix[0].length; j++){
+                    if(matrix[i][j]){
+                        Position source = piece.getChessPosition().toPosition();
+                        Position target = new Position(i, j);
+                        ChessPiece capturedPiece = makeMove(source, target);
+                        boolean checkMate = testCheck(color);
+                        undoMove(source, target, capturedPiece);
+                        if(!checkMate){
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     private ChessPiece getKing(Color color){
