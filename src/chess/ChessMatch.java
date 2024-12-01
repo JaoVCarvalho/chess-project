@@ -16,6 +16,7 @@ public class ChessMatch {
     private boolean check; // Por padrão, o Java já inicializa como false
     private boolean checkMate;
     private ChessPiece enPassantVulnerable;
+    private ChessPiece promoted;
 
     private List<ChessPiece> piecesOnTheBoard = new ArrayList<>();
     private List<ChessPiece> capturedPieces = new ArrayList<>();
@@ -60,7 +61,12 @@ public class ChessMatch {
         return enPassantVulnerable;
     }
 
+    public ChessPiece getPromoted() {
+        return promoted;
+    }
+
     public ChessPiece performChessMove(ChessPosition sourcePosition, ChessPosition targetPosition) {
+
         Position source = sourcePosition.toPosition();
         Position target = targetPosition.toPosition();
 
@@ -75,12 +81,9 @@ public class ChessMatch {
 
         ChessPiece movedPiece = (ChessPiece) board.piece(target);
 
-        check = (testCheck(opponent(currentPlayer))) ? true : false;
-
-        if (testCheckMate(opponent(currentPlayer))) {
-            checkMate = true;
-        } else {
-            nextTurn();
+        promoted = null;
+        if(movedPiece instanceof Pawn && (movedPiece.getColor() == Color.WHITE && target.getRow() == 0 || movedPiece.getColor() == Color.BLACK && target.getRow() == 7)){
+            promoted = movedPiece;
         }
 
         if(movedPiece instanceof Pawn && (target.getRow() - source.getRow() == -2 || target.getRow() - source.getRow() == 2)){
@@ -89,9 +92,42 @@ public class ChessMatch {
             enPassantVulnerable = null;
         }
 
+
         return capturedPiece;
     }
 
+    public ChessPiece replacePromotedPiece(String type) {
+        if (promoted == null) {
+            throw new IllegalStateException("There is no piece to be promoted");
+        }
+
+        Position position = promoted.getChessPosition().toPosition();
+        ChessPiece piece = (ChessPiece) board.removePiece(position);
+        piecesOnTheBoard.remove(piece);
+
+        ChessPiece newPiece = newPiece(type, promoted.getColor());
+        board.placePiece(newPiece, position);
+        piecesOnTheBoard.add(newPiece);
+
+        return newPiece;
+    }
+
+    private ChessPiece newPiece(String type, Color color) {
+        if (type.equals("B")) return new Bishop(board, color);
+        if (type.equals("K")) return new Knight(board, color);
+        if (type.equals("Q")) return new Queen(board, color);
+        return new Rook(board, color);
+    }
+
+    public void updateCheckAndCheckMateStatus(){
+        check = (testCheck(opponent(currentPlayer))) ? true : false;
+
+        if (testCheckMate(opponent(currentPlayer))) {
+            checkMate = true;
+        } else {
+            nextTurn();
+        }
+    }
 
     private boolean testCheck(Color color) {
         Position position = getKing(color).getChessPosition().toPosition();
